@@ -1,0 +1,34 @@
+name: Daily Smoke Limiter
+
+on:
+  schedule:
+    # Runs at 6am UTC every day.
+    # Adjust the hour for your timezone:
+    #   UTC+8  (Beijing/Singapore) -> change 6 to 22 (previous night)
+    #   UTC+1  (London BST)        -> change 6 to 5
+    #   UTC-5  (New York EST)      -> change 6 to 11
+    - cron: '0 22 * * *'
+
+  # Lets you manually trigger the workflow from GitHub's UI to test it
+  workflow_dispatch:
+
+jobs:
+  send-daily-limit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run the smoke limiter
+        run: python main.py
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
